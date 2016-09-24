@@ -1,4 +1,4 @@
-var mod = angular.module('app.controllers', ['firebase'])
+var mod = angular.module('app.controllers', [])
   
 mod.controller('sharedCtrl', ['$scope', '$stateParams', '$location', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
@@ -35,16 +35,27 @@ function ($scope, $stateParams) {
 
 }])
    
-mod.controller('loginCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+mod.controller('loginCtrl', ['$scope', '$stateParams', '$state',// The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams,$firebaseAuth,$rootScope, $firebaseAuth, $cordovaOauth) {
+function ($scope, $stateParams,$state) {
 
+$scope.loginwithmail = function ( path ) {
 
+$state.go('loginnormal');
+  }
 
 
 }])
 
+mod.controller('loginNormalCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
+// You can include any angular dependencies as parameters for this function
+// TIP: Access Route Parameters for your page via $stateParams.parameterName
+function ($scope, $stateParams) {
+
+
+
+}])
 
 
 

@@ -1,30 +1,23 @@
-<ion-view style="" id="login" title="Login" hide-nav-bar="true">
-    <ion-content  padding="true" scroll="false" class="manual-ios-statusbar-padding">
-        <div style="color:#FF9955;text-align:center;margin-top:25%;" id="login-markdown3">
-            <p>WATCHAPP</p>
-        </div>
-        <div>
-            <img style="display: block; margin-left: auto; margin-right: auto; margin-top:15%; margin-bottom:15%;" src="img/whatchapp.png">
-        </div>
-        <form class="list" id="login-form1">
-            <ion-list id="login-list1">
-                <label id="login-input1" class="item item-input">
-                    <input placeholder="Username" type="text">
-                </label>
-                <label id="login-input2" class="item item-input">
-                    <input placeholder="Password" type="password">
-                </label>
-            </ion-list>
-            <div style="height: 15%;" class="spacer"></div>
+<ion-view class="pane" id="login" title="Login" hide-nav-bar="true">
+    <ion-content  padding="false" scroll="false" class="manual-ios-statusbar-padding">
+        <div  class="overlogo">
+          <div class="logotext">WATCHAPP</div>
+          <div class="sublogotext">Live fast, share fast</div>
+      </div>
 
-            <a class="button button-stable  button-block" id="login-button1" href="#/tabsCtrl/shared">Sing In</a>
+      <div class="goButtom">
+          <button class="button buttonNoMargin button-full button-positive" ng-click="loginWithFacebook()">
+            Sign in with Facebook
+        </button>
+        <button class="button buttonNoMargin button-full button-assertive" ng-click="loginWithGoogle()">
+            Sign in with Google
+        </button>
+        <button  class="button buttonNoMargin button-full button-dark" ng-click="loginwithmail()">
+            Sign in with Email
+        </button>
+    </div>
 
-            <div style="height: 15%;" class="spacer"></div>
 
-            <button class="button button-block button-positive" ng-click="login()">
-                Sign in with facebook
-            </button>
-            <a class="button button-positive  button-block button-clear" style="color:#FF9955; margin-top:15%;" id="login-button2" href="#/signup">Or create an account</a>
-        </form>
-    </ion-content>
+
+</ion-content>
 </ion-view>

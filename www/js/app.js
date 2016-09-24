@@ -6,13 +6,13 @@
 // 'starter.services' is found in services.js
 // 'starter.controllers' is found in controllers.js
 
-angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.directives','app.services','firebase'])
-.constant('FirebaseUrl', 'https://ionicle.firebaseio.com/')
-.service('rootRef', ['FirebaseUrl', Firebase])
-.factory("Auth", function($firebaseAuth) {
-  var usersRef = new Firebase("ttps://watchapp-7e459.firebaseio.com/users");
-  return $firebaseAuth(usersRef);
-})
+angular.module('app', ['ionic', 'app.controllers', 'app.routes', 'app.directives','app.services'])
+//.constant('FirebaseUrl', 'https://ionicle.firebaseio.com/')
+//.service('rootRef', ['FirebaseUrl', Firebase])
+//.factory("Auth", function($firebaseAuth) {
+ // var usersRef = new Firebase("ttps://watchapp-7e459.firebaseio.com/users");
+  //return $firebaseAuth(usersRef);
+//})
 .run(function($ionicPlatform) {
   $ionicPlatform.ready(function() {
     // Hide the accessory bar by default (remove this to show the accessory bar above the keyboard

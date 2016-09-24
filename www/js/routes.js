@@ -51,7 +51,11 @@ angular.module('app.routes', [])
     templateUrl: 'templates/login.html',
     controller: 'loginCtrl'
   })
-
+  .state('loginnormal', {
+    url: '/loginnormal',
+    templateUrl: 'templates/loginnormal.html',
+    controller: 'loginNormalCtrl'
+  })
   .state('signup', {
     url: '/signup',
     templateUrl: 'templates/signup.html',

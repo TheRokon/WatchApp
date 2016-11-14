@@ -1,14 +1,12 @@
 <ion-view style="" id="admin" title="Check List">
-	<div class="bar bar-header">
-		<button class="button button-clear button-positive">Edit</button>
-	</div>
-	<ion-content class="has-header" padding="true" >
-
+	<ion-content class="has-header" padding="true" overflow-scroll:false  ng-init="loadAdminPost()">
+<div ng-repeat="(name,postItemToGo) in Aposts">
+	<div  ng-if="!postItemToGo.postStatus">
 		<div class="list card">
 			<div class="item item-avatar">
 				<img src="http://tutorialsplane.com/runtest/ionic/img/profile.jpg">
-				<h2>John Doe</h2>
-				<p>This is John From Australia...</p>
+				<h2>{{user.username}}</h2>
+				<p>{{postItemToGo.postText}}</p>
 			</div>
 
 			<div class="item item-image">
@@ -18,32 +16,31 @@
 				
 				<div class="row">
 					<div class="col col-50"><h3>Sharing for:</h3></div>
-					<div class="col"><i class="icon ion-social-facebook"></i></div>
-					<div class="col"><i class="icon ion-social-twitter"></i></div>
-					<div class="col"><i class="icon ion-social-googleplus-outline"></i></div>
+					<div class="col"><i class="icon ion-social-facebook custom-icon-facebook"></i></div>
+					<div class="col"><i class="icon ion-social-twitter custom-icon-twitter"></i></div>
+					<div class="col"><i class="icon ion-social-googleplus-outline custom-icon-gmail"></i></div>
 				</div>
+				<br>
+				<div class="list">
+					<div class="row">
+						<div class="col">
+							<a class="item custom-icon-checkmark" href="#" ng-click="approve(name)">
+							<i class="icon ion-checkmark"></i>
+								Approve
+							</a>
+						</div>
+						<div class="col">
+							<a class="item assertive" href="#" ng-click="reject(postItemToGo)">
+								<i class="icon ion-close"></i>
+								Reject
+							</a>
+						</div>
+					</div>
+				</div>
+
 			</div>
 		</div>
-
-
-		<div class="list card">
-			<div class="item item-avatar">
-				<img src="https://pbs.twimg.com/profile_images/776175193219854337/oBB4eoH6_400x400.jpg">
-				<h2>Ozan Konur</h2>
-				<p>New Car !</p>
-			</div>
-
-			<div class="item item-image">
-				<img src="http://www.velocealfaromeo.com/upload/816773ec73135428552ed0f046fc9043.JPG">
-			</div>
-			<div class="item">
-				
-				<div class="row">
-					<div class="col col-50"><h3>Sharing for:</h3></div>
-					<div class="col"><i class="icon ion-social-facebook"></i></div>
-					<div class="col"><i class="icon ion-social-twitter"></i></div>
-				</div>
-			</div>
+		</div>
 		</div>
 	</ion-content>
 </ion-view>

@@ -1,29 +1,31 @@
 <ion-view style="" id="shared" title="Posts">
-	<ion-content scroll="true" padding="true"  class=" manual-remove-top-padding has-header">
+	<ion-content scroll="true" padding="true"  class=" manual-remove-top-padding has-header" ng-init="loadPost()">
 
-		<div class="list card">
-			<div class="item item-avatar">
-				<img src="https://pbs.twimg.com/profile_images/776175193219854337/oBB4eoH6_400x400.jpg">
-				<h2>Ozan Konur</h2>
-				<p>New Car !</p>
-			</div>
+		<div ng-repeat="item in Aposts">
+			<div class="list card" ng-if="item.postStatus">
+				<div class="item item-avatar">
+					<img src="https://pbs.twimg.com/profile_images/776175193219854337/oBB4eoH6_400x400.jpg">
+					<h2>{{user.username}}</h2>
+					<p>{{item.postText}}</p>
+				</div>
 
-			<div class="item item-image">
-				<img src="http://www.velocealfaromeo.com/upload/816773ec73135428552ed0f046fc9043.JPG">
-			</div>
-			<div class="item">
-				
-				<div class="row">
-					<div class="col col-50"><h3>Shared for:</h3></div>
-					<div class="col"><i class="icon ion-social-facebook"></i></div>
-					<div class="col"><i class="icon ion-social-twitter"></i></div>
+				<div class="item item-image">
+					<img src="http://www.velocealfaromeo.com/upload/816773ec73135428552ed0f046fc9043.JPG">
+				</div>
+				<div class="item">
+
+					<div class="row">
+						<div class="col col-50"><h3>Shared for:</h3></div>
+						<div class="col"><i class="icon ion-social-facebook"></i></div>
+						<div class="col"><i class="icon ion-social-twitter"></i></div>
+					</div>
 				</div>
 			</div>
 		</div>
 	</ion-content>
 
 
-		<button class="button button-float fixbottom"  ng-click="go('createPost')">
-			<i class="icon ion-plus"></i>
-		</button>
+	<button class="button button-float fixbottom"  ng-click="go('createPost')">
+		<i class="icon ion-plus"></i>
+	</button>
 </ion-view>

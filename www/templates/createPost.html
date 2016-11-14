@@ -1,3 +1,39 @@
 <ion-view style="" id="page8" title="CreatePost">
-    <ion-content class="has-header" padding="true" scroll="false"></ion-content>
+  <ion-content class="has-header" padding="true" scroll="false">
+<form name="createPostForm" class="list" id="signup-form2">
+    <div class="card ">
+
+      <div class="profile createPostCard">
+        <div class="name">What would you like to share</div>
+      </div>
+        <div class="item item-body">
+         <textarea class="textareaBody" placeholder="Write something.." ng-model="post.text" autofocus></textarea>
+         <p>
+
+          <div class="row">
+            <div class="doCenter fullWidth"><a class="button button-icon icon ion-location"></a></div>
+            <div class="doCenter fullWidth"><a class="button button-icon icon ion-image" ng-click="getPhoto()"></a></div>
+          </div>
+          <br>
+          <div class="item">
+            <div class="row">
+              <div class="col col-50"><h3>Sharing for:</h3></div>
+              <div class="col"><h3><i class="icon ion-social-facebook custom-icon-facebook"></i></h3></div>
+              <div class="col"><h3><i class="icon ion-social-twitter custom-icon-twitter"></i></h3></div>
+              <div class="col"><h3><i class="icon ion-social-googleplus-outline custom-icon-gmail"></i></h3></div>
+            </div>
+          </div>
+          <br>
+          <button class="button buttonCreatePost" ng-click="createPost(createPostForm,post)">
+            Send to Watcher
+          </button>
+        </p>
+      </div>
+  </div>
+
+    <button class="button button-stable doCenter fullWidth">
+    Go Back
+  </button>
+</form>
+</ion-content>
 </ion-view>

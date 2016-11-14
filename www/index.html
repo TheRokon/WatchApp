@@ -5,17 +5,45 @@
   <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
   <title></title>
 
-  <script type="text/javascript" src="angular.min.js"></script>
-  <!-- Firebase -->
-  <script src="https://cdn.firebase.com/js/client/2.4.2/firebase.js"></script>
-  <!-- AngularFire -->
-  <script src="https://cdn.firebase.com/libs/angularfire/1.2.0/angularfire.min.js"></script>
-  
-  <script src="lib/ionic/js/ionic.bundle.js"></script>
-  <!-- cordova script (this will be a 404 during development) -->
-  <script src="cordova.js"></script>
+ <script src="lib/ionic/js/ionic.bundle.js"></script>
+<!-- ng cordova js -->
+  <script src="lib/ngCordova/dist/ng-cordova.js"></script>
+    <!-- cordova script (this will be a 404 during development) -->
+    <script src="cordova.js"></script>
 
-  <script src="js/ng-cordova-oauth.min.js"></script>
+    <link href="lib/ionic/css/ionic.css" rel="stylesheet">
+
+
+<!--=========================================#1. Custom Header Part====================================-->
+
+  <!-- Ionic Meterial Header-->
+  <script src="lib/ionic-material/dist/ionic.material.min.js"></script>
+  <script src="lib/ionicuirouter/ionicUIRouter.js"></script>
+  <link href="lib/ionic-material/dist/ionic.material.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css?family=RobotoDraft%3A400%2C500%2C700%2C400italic" rel="stylesheet">
+  <link href="css/style.css" rel="stylesheet">
+
+
+
+  <!--Firebase Header-->
+  <script src="https://cdn.firebase.com/js/client/2.2.4/firebase.js"></script>
+  <!-- AngularFire -->
+  <script src="https://cdn.firebase.com/libs/angularfire/2.1.0/angularfire.min.js"></script>
+
+  <script src="https://www.gstatic.com/firebasejs/live/3.0/firebase.js"></script>
+  <script>
+  // Initialize Firebase
+  var config = {
+    apiKey: "AIzaSyBeUn6SdM60BXYBCsJd5gzNrACAdRFVZlo",
+    authDomain: "watchapp-7e459.firebaseapp.com",
+    databaseURL: "https://watchapp-7e459.firebaseio.com",
+    storageBucket: "watchapp-7e459.appspot.com",
+    messagingSenderId: "506739534187"
+  };
+  firebase.initializeApp(config);
+
+  </script>
+
 
   <link href="lib/ionic/css/ionic.css" rel="stylesheet">
   <link href="css/style.css" rel="stylesheet">
@@ -58,7 +86,7 @@
 </head>
 <body ng-app="app" animation="slide-left-right-ios7">
   <div style="">
-    <ion-side-menus data-componentid="side-menu21" style="" enable-menu-with-back-views="false">
+    <ion-side-menus data-componentid="side-menu21" style="" ng-controller="indexCtrl" enable-menu-with-back-views="false">
       <ion-side-menu-content>
         <ion-nav-bar class="bar-stable">
           <ion-nav-back-button></ion-nav-back-button>
@@ -72,8 +100,8 @@
         <ion-header-bar class="bar-profile">
           <div class="profile">
             <img class="profile-picture" src="https://pbs.twimg.com/profile_images/776175193219854337/oBB4eoH6_400x400.jpg" />
-            <div class="name">Ozan</div>
-            <div class="mail">ozankonur@hotmail.com</div>
+            <div class="name">{{user.username}}</div>
+            <div class="mail">{{user_info.email}}</div>
           </div>
         </ion-header-bar>
         <ion-content ng-controller="menuCtrl" padding="false" class="side-menu-left has-header " scroll="false">
@@ -97,11 +125,11 @@
               Pending Posts
               <span class="badge badge-assertive">1</span>
             </a>
-            <a menu-close class="item item-icon-left" href="#/admin">
+            <a menu-close class="item item-icon-left" ng-if="isAdmin" href="#/admin">
               <i class="icon ion-pound"></i>
               Admin Panel
             </a>
-            <a menu-close class="item item-icon-left" href="#/login">
+            <a menu-close class="item item-icon-left" ng-click="logout()">
               <i class="icon ion-log-out"></i>
               Sign Out
             </a>

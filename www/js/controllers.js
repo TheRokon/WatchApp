@@ -317,7 +317,7 @@ function ($scope, $stateParams) {
 
   })
 
-mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaCamera,$cordovaCamera,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
+mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaCamera,$q,$cordovaCamera,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
     $rootScope.extras = false; // For hiding the side bar and nav icon
     var uid ;
     //Check if user already logged in
@@ -365,28 +365,70 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaC
 
     }
 
-$scope.getPhoto = function() {
+    $scope.getPhoto = function() {
 
-    var options = {
+      var options = {
         quality: 50,
         destinationType: Camera.DestinationType.FILE_URI,
         sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM,
         mediaType: Camera.MediaType.ALLMEDIA,
         saveToPhotoAlbum: true
 
-    };
-
-    $cordovaCamera.getPicture(options).then(function(imageData) {
-        console.log("img URI= " + imageData);        
+      };
+      var fileName;
+      $cordovaCamera.getPicture(options).then(function(imageData) {
+        console.log("img URI= " + imageData);   
+         fileName = imageData.replace(/^.*[\\\/]/, '');   
         //Here you will be getting image data 
-    }, function(err) {
-        alert("Failed because: " + err);
+      }, function(err) {
+
         console.log('Failed because: ' + err);
-    });
+      }).then(function (success) {
+          // success - get blob data
+          var imageBlob = new Blob([success], { type: "image/jpeg" });
 
-};
+          // missed some params... NOW it is a promise!!
+          return saveToFirebase(imageBlob, fileName);
+        }).then(function (_response) {
+          alert("Saved Successfully!!")
+        }, function (error) {
+          // error
+          console.log(error)
+        });
 
-  })
+
+        function saveToFirebase(_imageBlob, _filename) {
+
+          return $q(function (resolve, reject) {
+        // Create a root reference to the firebase storage
+        var storageRef = firebase.storage().ref();
+
+        // pass in the _filename, and save the _imageBlob
+        var uploadTask = storageRef.child('images/' + _filename).put(_imageBlob);
+
+        // Register three observers:
+        // 1. 'state_changed' observer, called any time the state changes
+        // 2. Error observer, called on failure
+        // 3. Completion observer, called on successful completion
+        uploadTask.on('state_changed', function (snapshot) {
+          // Observe state change events such as progress, pause, and resume
+          // See below for more detail
+        }, function (error) {
+          // Handle unsuccessful uploads, alert with error message
+          alert(error.message)
+          reject(error)
+        }, function () {
+          // Handle successful uploads on complete
+          var downloadURL = uploadTask.snapshot.downloadURL;
+
+          // when done, pass back information on the saved image
+          resolve(uploadTask.snapshot)
+        });
+      });
+        }
+      };
+
+    })
 
 mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
   $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils) {
@@ -443,7 +485,7 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
     
   }
   $scope.approve=function(postItem){
-              console.log(postItem);
+    console.log(postItem);
     firebase.database().ref('posts/' + postItem).update({postStatus:true});
   }
   $scope.reject=function(postItem){

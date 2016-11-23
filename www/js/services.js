@@ -2,9 +2,9 @@ angular.module('app.services', [])
 
 
 .factory('fireBaseData', function($firebase) {
-  var ref = new Firebase("https://watchapp-7e459.firebaseio.com/"),
-    refUser = new Firebase("https://watchapp-7e459.firebaseio.com/users"),
-    refPost = new Firebase("https://watchapp-7e459.firebaseio.com/posts");
+  var ref = firebase.database().ref(),
+    refUser = firebase.database().ref("users"),
+    refPost = firebase.database().ref("posts");
   return {
     ref: function() {
       return ref;

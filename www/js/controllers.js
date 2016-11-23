@@ -12,7 +12,6 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
       $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
     }else {
 
-      $ionicSideMenuDelegate.toggleLeft(); //To close the side bar
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
       $ionicHistory.nextViewOptions({
@@ -113,7 +112,8 @@ mod.controller('loginCtrl', function ($scope, $stateParams,$state,$ionicHistory)
   })
 
 mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,sharedUtils,$state,$ionicSideMenuDelegate) {
-    $rootScope.extras = false;  // For hiding the side bar and nav icon
+		$rootScope.extras = false;  // For hiding the side bar and nav icon
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
     // When the user logs out and reaches login page,
     // we clear all the history and cache to prevent back link
@@ -207,7 +207,7 @@ mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,share
 
 mod.controller('signupCtrl',function($scope,$rootScope,sharedUtils,$ionicSideMenuDelegate,$state,fireBaseData,$ionicHistory) {
     $rootScope.extras = false; // For hiding the side bar and nav icon
-
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
     $scope.signupEmail = function (formName, cred) {
 
       if (formName.$valid) {  // Check if the form data is valid or not
@@ -239,7 +239,7 @@ mod.controller('signupCtrl',function($scope,$rootScope,sharedUtils,$ionicSideMen
             $ionicHistory.nextViewOptions({
               historyRoot: true
             });
-            $ionicSideMenuDelegate.canDragContent(true);  // Sets up the sideMenu dragable
+            $ionicSideMenuDelegate.canDragContent(false);  // Sets up the sideMenu dragable
             $rootScope.extras = true;
             sharedUtils.hideLoading();
             $state.go('tabsController.shared', {}, {location: "replace"});
@@ -261,13 +261,14 @@ mod.controller('signupCtrl',function($scope,$rootScope,sharedUtils,$ionicSideMen
 mod.controller('draftsCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
 // TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
-
+function ($scope, $stateParams,$ionicSideMenuDelegate) {
+        $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
 }])
 
 .controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$ionicSideMenuDelegate,$firebaseObject,fireBaseData) {
 
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
     //Check if user already logged in
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
@@ -275,12 +276,8 @@ function ($scope, $stateParams) {
         $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
         $scope.isAdmin=user.admin;
       }else {
-
-        $ionicSideMenuDelegate.toggleLeft(); //To close the side bar
-        $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
-
         $ionicHistory.nextViewOptions({
-          historyRoot: true
+          historyRoot: false
         });
         $rootScope.extras = false;
         sharedUtils.hideLoading();
@@ -296,8 +293,6 @@ function ($scope, $stateParams) {
       // Main Firebase logout
       firebase.auth().signOut().then(function() {
 
-
-        $ionicSideMenuDelegate.toggleLeft(); //To close the side bar
         $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
         $ionicHistory.nextViewOptions({
@@ -317,7 +312,7 @@ function ($scope, $stateParams) {
 
   })
 
-mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaCamera,$q,$cordovaCamera,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
+mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaCamera,$q,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
     $rootScope.extras = false; // For hiding the side bar and nav icon
     var uid ;
     //Check if user already logged in
@@ -328,7 +323,6 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaC
         uid=user.uid;
       }else {
 
-        $ionicSideMenuDelegate.toggleLeft(); //To close the side bar
         $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
         $ionicHistory.nextViewOptions({
@@ -443,7 +437,6 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
       $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
     }else {
 
-      $ionicSideMenuDelegate.toggleLeft(); //To close the side bar
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
       $ionicHistory.nextViewOptions({

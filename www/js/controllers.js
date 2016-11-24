@@ -1,7 +1,7 @@
 var mod = angular.module('app.controllers', [])
 
 mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
-  $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils) {
+  $ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
 
   var userid;
   //Check if user already logged in
@@ -88,7 +88,7 @@ function ($scope, $stateParams) {
 
 }])
 
-mod.controller('loginCtrl', function ($scope, $stateParams,$state,$ionicHistory) {
+mod.controller('loginCtrl', function ($scope, $stateParams,$state,$ionicHistory,$ionicSideMenuDelegate) {
 
   $scope.loginwithmail = function (  ) {
 
@@ -111,10 +111,10 @@ mod.controller('loginCtrl', function ($scope, $stateParams,$state,$ionicHistory)
 
   })
 
-mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,sharedUtils,$state,$ionicSideMenuDelegate) {
+mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,sharedUtils,$state,$ionicPopup,$ionicSideMenuDelegate) {
 		$rootScope.extras = false;  // For hiding the side bar and nav icon
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
-
+console.log("I am in loginnormal"); 
     // When the user logs out and reaches login page,
     // we clear all the history and cache to prevent back link
     $scope.$on('$ionicView.enter', function(ev) {
@@ -154,9 +154,9 @@ mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,share
 
     $scope.loginEmail = function(formName,cred) {
 
-
+console.log("I am in FORUM NOW"); 
       if(formName.$valid) {  // Check if the form data is valid or not
-
+console.log("I am in VALID FORUM"); 
         sharedUtils.showLoading();
 
           //Email
@@ -168,7 +168,7 @@ mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,share
                 // 2. Set rootScope.extra;
                 // 3. Turn off the loading
                 // 4. Got to menu page
-
+                console.log("I am in RESULT:" + result); 
                 $ionicHistory.nextViewOptions({
                   historyRoot: true
                 });
@@ -180,6 +180,7 @@ mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,share
               function(error) {
                 sharedUtils.hideLoading();
                 sharedUtils.showAlert("Please note","Authentication Error");
+                console.log("I am in ERROR: "+error); 
               }
               );
 
@@ -312,7 +313,7 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 
   })
 
-mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaCamera,$q,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
+mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaImagePicker, $cordovaFile,$ionicPlatform,$q,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
     $rootScope.extras = false; // For hiding the side bar and nav icon
     var uid ;
     //Check if user already logged in
@@ -369,15 +370,26 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaC
         saveToPhotoAlbum: true
 
       };
-      var fileName;
-      $cordovaCamera.getPicture(options).then(function(imageData) {
-        console.log("img URI= " + imageData);   
-         fileName = imageData.replace(/^.*[\\\/]/, '');   
-        //Here you will be getting image data 
-      }, function(err) {
+ var fileName, path;
 
-        console.log('Failed because: ' + err);
-      }).then(function (success) {
+      $cordovaImagePicker.getPictures(options)
+        .then(function (results) {
+          console.log('Image URI: ' + results[0]);
+
+          // lets read the image into an array buffer..
+          // see documentation:
+          // http://ngcordova.com/docs/plugins/file/
+          fileName = results[0].replace(/^.*[\\\/]/, '');
+
+          // modify the image path when on Android
+          if ($ionicPlatform.is("android")) {
+            path = cordova.file.cacheDirectory
+          } else {
+            path = cordova.file.tempDirectory
+          }
+
+          return $cordovaFile.readAsArrayBuffer(path, fileName);
+        }).then(function (success) {
           // success - get blob data
           var imageBlob = new Blob([success], { type: "image/jpeg" });
 
@@ -389,11 +401,10 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaC
           // error
           console.log(error)
         });
+    }
+   function saveToFirebase(_imageBlob, _filename) {
 
-
-        function saveToFirebase(_imageBlob, _filename) {
-
-          return $q(function (resolve, reject) {
+      return $q(function (resolve, reject) {
         // Create a root reference to the firebase storage
         var storageRef = firebase.storage().ref();
 
@@ -419,10 +430,10 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaC
           resolve(uploadTask.snapshot)
         });
       });
-        }
-      };
+}
+  })
 
-    })
+
 
 mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
   $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils) {

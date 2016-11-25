@@ -88,7 +88,7 @@ function ($scope, $stateParams) {
 
 }])
 
-mod.controller('loginCtrl', function ($scope, $stateParams,$state,$ionicHistory,$ionicSideMenuDelegate) {
+mod.controller('loginCtrl', function ($scope, $stateParams,$state,$rootScope,$ionicHistory,$ionicSideMenuDelegate) {
 
   $scope.loginwithmail = function (  ) {
 
@@ -154,9 +154,7 @@ console.log("I am in loginnormal");
 
     $scope.loginEmail = function(formName,cred) {
 
-console.log("I am in FORUM NOW"); 
       if(formName.$valid) {  // Check if the form data is valid or not
-console.log("I am in VALID FORUM"); 
         sharedUtils.showLoading();
 
           //Email
@@ -179,13 +177,13 @@ console.log("I am in VALID FORUM");
               },
               function(error) {
                 sharedUtils.hideLoading();
-                sharedUtils.showAlert("Please note","Authentication Error");
+                sharedUtils.showAlert("Authentication Error");
                 console.log("I am in ERROR: "+error); 
               }
               );
 
         }else{
-          sharedUtils.showAlert("Please note","Entered data is not valid");
+          sharedUtils.showAlert("Entered data is not valid");
         }
 
 
@@ -224,16 +222,15 @@ mod.controller('signupCtrl',function($scope,$rootScope,sharedUtils,$ionicSideMen
               //photoURL: "default_dp"
             }).then(function() {}, function(error) {
               sharedUtils.hideLoading();
-              sharedUtils.showAlert("Please note","Sign up Error");
+              sharedUtils.showAlert("Sign up Error");
             });
 
             //Add features to the user table
             fireBaseData.refUser().child(result.uid).set({
               admin: "0",
-              postcount:0,
               adminname:"ozan",
               username:cred.username,
-              image:"hello"
+              image:"default.png"
             });
 
             //Registered OK
@@ -247,12 +244,12 @@ mod.controller('signupCtrl',function($scope,$rootScope,sharedUtils,$ionicSideMen
 
           }, function (error) {
             sharedUtils.hideLoading();
-            sharedUtils.showAlert("Please note","Sign up Error");
+            sharedUtils.showAlert("Sign up Error");
           });
 
       }else{
         sharedUtils.hideLoading();
-        sharedUtils.showAlert("Please note","Entered data is not valid");
+        sharedUtils.showAlert("Entered data is not valid");
       }
 
     }
@@ -306,7 +303,7 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
         $state.go('login', {}, {location: "replace"});
 
       }, function(error) {
-       sharedUtils.showAlert("Error","Logout Failed")
+       sharedUtils.showAlert("Logout Failed")
      });
 
     }
@@ -316,6 +313,7 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaImagePicker, $cordovaFile,$ionicPlatform,$q,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
     $rootScope.extras = false; // For hiding the side bar and nav icon
     var uid ;
+	var imageUrl;
     //Check if user already logged in
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
@@ -341,21 +339,24 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
 
         sharedUtils.showLoading();
 
+		
             fireBaseData.refPost().push({    // set
               postText: post.text,
               postStatus: false,
-              postImage: "null",
+              postImage: imageUrl,
               postVideo: "null",
               postDirect:"1",
               postUser: uid
-            });
-            sharedUtils.hideLoading();
-            sharedUtils.showAlert("","Succesfully sent to watcher !"); 
+            }).then(function (success) {
+						sharedUtils.hideLoading();
+            sharedUtils.showAlert("Successfully sent watcher");
+			});
         /*sharedpostService.add(post);
         */
+		
       }else{
         sharedUtils.hideLoading();
-        sharedUtils.showAlert("Please note","Entered data is not valid");
+        sharedUtils.showAlert("Entered data is not valid");
       }
 
     }
@@ -389,14 +390,17 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
           }
 
           return $cordovaFile.readAsArrayBuffer(path, fileName);
-        }).then(function (success) {
+        }, {
+        maximumImagesCount: 1
+    }).then(function (success) {
           // success - get blob data
           var imageBlob = new Blob([success], { type: "image/jpeg" });
 
           // missed some params... NOW it is a promise!!
           return saveToFirebase(imageBlob, fileName);
         }).then(function (_response) {
-          alert("Saved Successfully!!")
+			sharedUtils.hideLoading();
+            sharedUtils.showAlert("Image added");
         }, function (error) {
           // error
           console.log(error)
@@ -425,7 +429,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
         }, function () {
           // Handle successful uploads on complete
           var downloadURL = uploadTask.snapshot.downloadURL;
-
+			imageUrl=downloadURL;
           // when done, pass back information on the saved image
           resolve(uploadTask.snapshot)
         });

@@ -4,20 +4,20 @@
 		<div ng-repeat="item in Aposts">
 			<div class="list card" ng-if="item.postStatus">
 				<div class="item item-avatar">
-					<img src="https://pbs.twimg.com/profile_images/776175193219854337/oBB4eoH6_400x400.jpg">
+					<img src="{{user.image}}">
 					<h2>{{user.username}}</h2>
 					<p>{{item.postText}}</p>
 				</div>
 
-				<div class="item item-image">
-					<img src="http://www.velocealfaromeo.com/upload/816773ec73135428552ed0f046fc9043.JPG">
+				<div class="item item-image" ng-if="item.postImage">
+					<img src="{{item.postImage}}">
 				</div>
 				<div class="item">
 
 					<div class="row">
 						<div class="col col-50"><h3>Shared for:</h3></div>
-						<div class="col"><i class="icon ion-social-facebook"></i></div>
-						<div class="col"><i class="icon ion-social-twitter"></i></div>
+						<div class="col"><i class="icon ion-social-facebook custom-icon-facebook"></i></div>
+						<div class="col"><i class="icon ion-social-twitter custom-icon-twitter"></i></div>
 					</div>
 				</div>
 			</div>

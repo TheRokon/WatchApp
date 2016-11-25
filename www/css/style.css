@@ -136,7 +136,7 @@ body{
 
 .menu .has-header
 {
-  top: 169px;
+  top: 170px;
 }
 .textareaBody{
   width: 100%;
@@ -146,6 +146,10 @@ body{
    border-width: 2px;
   border-style: dotted;
   border-color: #DEDEDE;
+}
+.card
+{
+  margin-bottom: 100px !important;
 }
 .createPostCard{
   width: 100%;

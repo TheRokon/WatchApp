@@ -38,9 +38,8 @@ angular.module('app.services', [])
     };
 
 
-    functionObj.showAlert = function(title,message) {
+    functionObj.showAlert = function(message) {
       var alertPopup = $ionicPopup.alert({
-        title: title,
         template: message
       });
     };

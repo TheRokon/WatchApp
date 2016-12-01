@@ -40,10 +40,10 @@ body{
   position: fixed; width: 95%; bottom: 0;
 }
 .marginfiveTop{
-  margin-top: 5%;
+  margin-top: 5% !important;
 }
 .marginfiveBottom{
-  margin-bottom: 5%;
+  margin-bottom: 5% !important;
 }
 .buttonNoMargin{
   margin:0px !important;

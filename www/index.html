@@ -97,7 +97,8 @@
       <ion-side-menu side="left" id="side-menu21">
         <ion-header-bar class="bar-profile">
           <div class="profile">
-            <img class="profile-picture" src="https://pbs.twimg.com/profile_images/776175193219854337/oBB4eoH6_400x400.jpg" />
+			<img ng-if="user.image" class="profile-picture" ng-click="setProfileImage()" src="{{user.image}}">
+			<img ng-if="!user.image" class="profile-picture" ng-click="setProfileImage()" src="img/defaultuser.png">
             <div class="name">{{user.username}}</div>
             <div class="mail">{{user_info.email}}</div>
           </div>
@@ -123,7 +124,7 @@
               Pending Posts
               <span class="badge badge-assertive">1</span>
             </a>
-            <a menu-close class="item item-icon-left" ng-if="isAdmin" href="#/admin">
+            <a menu-close class="item item-icon-left" ng-if="user.admin" href="#/admin">
               <i class="icon ion-pound"></i>
               Admin Panel
             </a>

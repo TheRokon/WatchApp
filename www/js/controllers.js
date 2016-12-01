@@ -88,7 +88,7 @@ function ($scope, $stateParams) {
 
 }])
 
-mod.controller('loginCtrl', function ($scope, $stateParams,$state,$rootScope,$ionicHistory,$ionicSideMenuDelegate) {
+mod.controller('loginCtrl', function ($scope, $stateParams,$state,$rootScope,sharedUtils,$ionicHistory,$ionicSideMenuDelegate) {
 
   $scope.loginwithmail = function (  ) {
 
@@ -114,7 +114,6 @@ mod.controller('loginCtrl', function ($scope, $stateParams,$state,$rootScope,$io
 mod.controller('loginNormalCtrl', function($scope,$rootScope,$ionicHistory,sharedUtils,$state,$ionicPopup,$ionicSideMenuDelegate) {
 		$rootScope.extras = false;  // For hiding the side bar and nav icon
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
-console.log("I am in loginnormal"); 
     // When the user logs out and reaches login page,
     // we clear all the history and cache to prevent back link
     $scope.$on('$ionicView.enter', function(ev) {
@@ -159,14 +158,6 @@ console.log("I am in loginnormal");
 
           //Email
           firebase.auth().signInWithEmailAndPassword(cred.email,cred.password).then(function(result) {
-
-                // You dont need to save the users session as firebase handles it
-                // You only need to :
-                // 1. clear the login page history from the history stack so that you cant come back
-                // 2. Set rootScope.extra;
-                // 3. Turn off the loading
-                // 4. Got to menu page
-                console.log("I am in RESULT:" + result); 
                 $ionicHistory.nextViewOptions({
                   historyRoot: true
                 });
@@ -178,7 +169,7 @@ console.log("I am in loginnormal");
               function(error) {
                 sharedUtils.hideLoading();
                 sharedUtils.showAlert("Authentication Error");
-                console.log("I am in ERROR: "+error); 
+                console.log("ERROR: "+error); 
               }
               );
 
@@ -227,7 +218,7 @@ mod.controller('signupCtrl',function($scope,$rootScope,sharedUtils,$ionicSideMen
 
             //Add features to the user table
             fireBaseData.refUser().child(result.uid).set({
-              admin: "0",
+              admin: false,
               adminname:"ozan",
               username:cred.username,
               image:"default.png"
@@ -264,7 +255,7 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 
 }])
 
-.controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$ionicSideMenuDelegate,$firebaseObject,fireBaseData) {
+.controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$q,$ionicSideMenuDelegate,$firebaseObject,fireBaseData) {
 
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
     //Check if user already logged in
@@ -272,18 +263,101 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
       if (user) {
         $scope.user_info=user; //Saves data to user_info
         $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
-        $scope.isAdmin=user.admin;
       }else {
         $ionicHistory.nextViewOptions({
           historyRoot: false
         });
         $rootScope.extras = false;
         sharedUtils.hideLoading();
-        $state.go('tabsController.login', {}, {location: "replace"});
+        $state.go('login', {}, {location: "replace"});
 
       }
     });
+$scope.setProfileImage=function(selection){
+function setOptions(srcType) {
+    var options = {
+        // Some common settings are 20, 50, and 100
+        quality: 50,
+        destinationType: Camera.DestinationType.FILE_URI,
+        // In this app, dynamically set the picture source, Camera or photo gallery
+        sourceType: srcType,
+        encodingType: Camera.EncodingType.JPEG,
+        mediaType: Camera.MediaType.PICTURE,
+        allowEdit: true,
+        correctOrientation: true  //Corrects Android orientation quirks
+    }
+    return options;
+}
+function b64toBlob(b64Data, contentType, sliceSize) {
+  contentType = contentType || '';
+  sliceSize = sliceSize || 512;
 
+  var byteCharacters = atob(b64Data);
+  var byteArrays = [];
+
+  for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    var slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    var byteNumbers = new Array(slice.length);
+    for (var i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    var byteArray = new Uint8Array(byteNumbers);
+
+    byteArrays.push(byteArray);
+  }
+    
+  var blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+}
+    var srcType = Camera.PictureSourceType.SAVEDPHOTOALBUM;
+    var options = setOptions(srcType);
+
+    if (selection == "picker-thmb") {
+        // To downscale a selected image,
+        // Camera.EncodingType (e.g., JPEG) must match the selected image type.
+        options.targetHeight = 100;
+        options.targetWidth = 100;
+    }
+
+    navigator.camera.getPicture(function cameraSuccess(imageData) {
+
+        // Do something with image
+		console.log('TRYING TO GET IMAGE');
+		saveToFirebase(imageData,'denemee.png');
+		console.log('BLOB IMAGE: '+BlobImage);
+
+    }, function cameraError(error) {
+        console.debug("Unable to obtain picture: " + error, "app");
+
+    }, options);
+	
+	   function saveToFirebase(_imageBlob, _filename) {
+
+      return $q(function (resolve, reject) {
+        // Create a root reference to the firebase storage
+        var storageRef = firebase.storage().ref();
+
+        // pass in the _filename, and save the _imageBlob
+        var uploadTask = storageRef.child('images/' + _filename).put(_imageBlob);
+        uploadTask.on('state_changed', function (snapshot) {
+          // Observe state change events such as progress, pause, and resume
+          // See below for more detail
+        }, function (error) {
+          // Handle unsuccessful uploads, alert with error message
+          alert(error.message)
+          reject(error)
+        }, function () {
+          // Handle successful uploads on complete
+          var downloadURL = uploadTask.snapshot.downloadURL;
+			imageUrl=downloadURL;
+          // when done, pass back information on the saved image
+          resolve(uploadTask.snapshot)
+        });
+      });
+}
+}
     $scope.logout=function(){
 
       sharedUtils.showLoading();
@@ -329,7 +403,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
         });
         $rootScope.extras = false;
         sharedUtils.hideLoading();
-        $state.go('tabsController.login', {}, {location: "replace"});
+        $state.go('login', {}, {location: "replace"});
 
       }
     });
@@ -346,6 +420,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
               postImage: imageUrl,
               postVideo: "null",
               postDirect:"1",
+			  postUserImg:""+user.image,
               postUser: uid
             }).then(function (success) {
 						sharedUtils.hideLoading();
@@ -376,19 +451,13 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
       $cordovaImagePicker.getPictures(options)
         .then(function (results) {
           console.log('Image URI: ' + results[0]);
-
-          // lets read the image into an array buffer..
-          // see documentation:
-          // http://ngcordova.com/docs/plugins/file/
           fileName = results[0].replace(/^.*[\\\/]/, '');
-
           // modify the image path when on Android
           if ($ionicPlatform.is("android")) {
             path = cordova.file.cacheDirectory
           } else {
             path = cordova.file.tempDirectory
           }
-
           return $cordovaFile.readAsArrayBuffer(path, fileName);
         }, {
         maximumImagesCount: 1
@@ -481,7 +550,6 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
 
   $scope.loadAdminPost = function() {
     sharedUtils.showLoading();
-    /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
     var VarPost = firebase.database().ref().child('posts');
     VarPost.on('value', function(snapshot){
 

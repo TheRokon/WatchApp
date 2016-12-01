@@ -4,11 +4,14 @@
 		<div ng-repeat="item in Aposts">
 			<div class="list card" ng-if="item.postStatus">
 				<div class="item item-avatar">
-					<img src="{{user.image}}">
-					<h2>{{user.username}}</h2>
-					<p>{{item.postText}}</p>
+					<img ng-if="user.image" src="{{user.image}}">
+					<img ng-if="!user.image" src="img/defaultuser.png">
+					<h2 class="marginfiveTop">{{user.username}}</h2>
+					
 				</div>
-
+			<div class="item item-text-wrap">
+			<p>{{item.postText}}</p>
+			</div>
 				<div class="item item-image" ng-if="item.postImage">
 					<img src="{{item.postImage}}">
 				</div>

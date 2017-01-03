@@ -72,13 +72,69 @@ function ($scope, $stateParams) {
 
 }])
 
-mod.controller('pendingCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
-// You can include any angular dependencies as parameters for this function
-// TIP: Access Route Parameters for your page via $stateParams.parameterName
-function ($scope, $stateParams) {
+mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
+  $ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
+  
+  var userid;
+  //Check if user already logged in
+  firebase.auth().onAuthStateChanged(function(user) {
+    if (user) {
+      userid=user.uid;
+      $scope.user_info=user; //Saves data to user_info
+      $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
+    }else {
 
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
 
-}])
+      $ionicHistory.nextViewOptions({
+        historyRoot: true
+      });
+      $rootScope.extras = false;
+      sharedUtils.hideLoading();
+      $state.go('login', {}, {location: "replace"});
+
+    }
+  });
+
+  // On Loggin in to menu page, the sideMenu drag state is set to true
+  $ionicSideMenuDelegate.canDragContent(true);
+  $rootScope.extras=true;
+
+  // When user visits A-> B -> C -> A and clicks back, he will close the app instead of back linking
+  $scope.$on('$ionicView.enter', function(ev) {
+    if(ev.targetScope !== $scope){
+      $ionicHistory.clearHistory();
+      $ionicHistory.clearCache();
+    }
+  });
+
+  $scope.go=function(stateurl){
+    $state.go(stateurl, {}, {location: "replace"});
+  }
+
+  $scope.loadPost = function() {
+    sharedUtils.showLoading();
+    /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
+    var database = firebase.database();
+    var VarPost = firebase.database().ref().child('posts');
+    VarPost.on('value', function(snapshot){
+
+          //Finally you get the 'posts' node and send to scope
+          $scope.Aposts = snapshot.val();
+
+        });
+    sharedUtils.hideLoading();
+    
+  }
+
+  $scope.showProductInfo=function (id) {
+
+  };
+  $scope.addToPost=function(item){
+    sharedpostService.add(item);
+  };
+
+})
 
 mod.controller('menuCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
 // You can include any angular dependencies as parameters for this function
@@ -545,7 +601,7 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
       });
       $rootScope.extras = false;
       sharedUtils.hideLoading();
-      $window.location.href='#/login';
+      $location.url('/login');
 
     }
   });
@@ -575,11 +631,12 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
   }
   $scope.approve=function(postItem){
     console.log(postItem);
-    firebase.database().ref('posts/' + postItem).update({postStatus:true});
+    firebase.database().ref('posts/' + postItem).update({postStatus:true,postDirect:"0"});
     $location.url('/admin');
   }
   $scope.reject=function(postItem){
-    firebase.database().ref('posts/' + postItem).update({postStatus:false});
+  //POST DIRECT(0) = SEEN BY ADMIN
+    firebase.database().ref('posts/' + postItem).update({postStatus:false,postDirect:"0"});
     $location.url('/admin');
   }
 })

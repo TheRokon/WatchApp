@@ -74,7 +74,7 @@ function ($scope, $stateParams) {
 
 mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
   $ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
-  
+
   var userid;
   //Check if user already logged in
   firebase.auth().onAuthStateChanged(function(user) {
@@ -311,14 +311,17 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 
       }])
 
-.controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$q,$ionicSideMenuDelegate,$firebaseObject,fireBaseData) {
-
+.controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$q,$ionicSideMenuDelegate,$firebaseObject,fireBaseData,$cordovaImagePicker,$window,$cordovaFile,$ionicPlatform,sharedpostService) {
+ var uid ;
+ var imageUrl=null;
+    var usertemp=null;
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
     //Check if user already logged in
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
         $scope.user_info=user; //Saves data to user_info
         $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
+        uid=user.uid;
       }else {
         $ionicHistory.nextViewOptions({
           historyRoot: false
@@ -329,78 +332,64 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 
       }
     });
-    $scope.setProfileImage=function(selection){
-      function setOptions(srcType) {
-        var options = {
-        // Some common settings are 20, 50, and 100
+    $scope.setProfileImage = function() {
+
+      var options = {
         quality: 50,
         destinationType: Camera.DestinationType.FILE_URI,
-        // In this app, dynamically set the picture source, Camera or photo gallery
-        sourceType: srcType,
-        encodingType: Camera.EncodingType.JPEG,
-        mediaType: Camera.MediaType.PICTURE,
-        allowEdit: true,
-        correctOrientation: true  //Corrects Android orientation quirks
+        sourceType: Camera.PictureSourceType.SAVEDPHOTOALBUM,
+        mediaType: Camera.MediaType.ALLMEDIA,
+        saveToPhotoAlbum: true
+
+      };
+      var fileName, path;
+
+      $cordovaImagePicker.getPictures(options)
+      .then(function (results) {
+        console.log('Image URI: ' + results[0]);
+        fileName = uid;
+          // modify the image path when on Android
+          if ($ionicPlatform.is("android")) {
+            path = cordova.file.cacheDirectory
+          } else {
+            path = cordova.file.tempDirectory
+          }
+          return $cordovaFile.readAsArrayBuffer(path, fileName);
+        }, {
+          maximumImagesCount: 1
+        }).then(function (success) {
+          // success - get blob data
+          var imageBlob = new Blob([success], { type: "image/jpeg" });
+          console.log('Image BLOBBBBB: ' + imageBlob);
+          // missed some params... NOW it is a promise!!
+          return saveToFirebase(imageBlob, fileName);
+        }).then(function (_response) {
+         sharedUtils.hideLoading();
+         sharedUtils.showAlert("Profile Image Changed");
+       }, function (error) {
+          // error
+          console.log(error)
+        });
       }
-      return options;
-    }
-    function b64toBlob(b64Data, contentType, sliceSize) {
-      contentType = contentType || '';
-      sliceSize = sliceSize || 512;
-
-      var byteCharacters = atob(b64Data);
-      var byteArrays = [];
-
-      for (var offset = 0; offset < byteCharacters.length; offset += sliceSize) {
-        var slice = byteCharacters.slice(offset, offset + sliceSize);
-
-        var byteNumbers = new Array(slice.length);
-        for (var i = 0; i < slice.length; i++) {
-          byteNumbers[i] = slice.charCodeAt(i);
-        }
-
-        var byteArray = new Uint8Array(byteNumbers);
-
-        byteArrays.push(byteArray);
-      }
-
-      var blob = new Blob(byteArrays, {type: contentType});
-      return blob;
-    }
-    var srcType = Camera.PictureSourceType.SAVEDPHOTOALBUM;
-    var options = setOptions(srcType);
-
-    if (selection == "picker-thmb") {
-        // To downscale a selected image,
-        // Camera.EncodingType (e.g., JPEG) must match the selected image type.
-        options.targetHeight = 100;
-        options.targetWidth = 100;
-      }
-
-      navigator.camera.getPicture(function cameraSuccess(imageData) {
-
-        // Do something with image
-        console.log('TRYING TO GET IMAGE');
-        saveToFirebase(imageData,'denemee.png');
-        console.log('BLOB IMAGE: '+BlobImage);
-
-      }, function cameraError(error) {
-        console.debug("Unable to obtain picture: " + error, "app");
-
-      }, options);
-
       function saveToFirebase(_imageBlob, _filename) {
 
         return $q(function (resolve, reject) {
         // Create a root reference to the firebase storage
         var storageRef = firebase.storage().ref();
 
+        console.log('FILENAME FOR FIREBASE ' + _filename);
         // pass in the _filename, and save the _imageBlob
-        var uploadTask = storageRef.child('images/' + _filename).put(_imageBlob);
+        var uploadTask = storageRef.child('user_images/' + _filename).put(_imageBlob);
+
+        // Register three observers:
+        // 1. 'state_changed' observer, called any time the state changes
+        // 2. Error observer, called on failure
+        // 3. Completion observer, called on successful completion
         uploadTask.on('state_changed', function (snapshot) {
           // Observe state change events such as progress, pause, and resume
           // See below for more detail
         }, function (error) {
+         console.log('ERRRORRR ' + error.message);
           // Handle unsuccessful uploads, alert with error message
           alert(error.message)
           reject(error)
@@ -413,10 +402,9 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
         });
       });
       }
-    }
-    $scope.logout=function(){
+      $scope.logout=function(){
 
-      sharedUtils.showLoading();
+        sharedUtils.showLoading();
 
       // Main Firebase logout
       firebase.auth().signOut().then(function() {
@@ -472,16 +460,16 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
         sharedUtils.showLoading();
 
         if(usertemp.image==null)
-          usertemp.image="null";
+          usertemp.image="";
         if(imageUrl==null)
-          imageUrl="null";
+          imageUrl="";
         if(post)
         {
                     fireBaseData.refPost().push({    // set
                       postText: post.text,
                       postStatus: false,
                       postImage: imageUrl,
-                      postVideo: "null",
+                      postVideo: "",
                       postDirect:"1",
                       postUserImg:usertemp.image,
                       postUser: uid
@@ -632,11 +620,11 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
   $scope.approve=function(postItem){
     console.log(postItem);
     firebase.database().ref('posts/' + postItem).update({postStatus:true,postDirect:"0"});
-    $location.url('/admin');
+    $state.reload();
   }
   $scope.reject=function(postItem){
   //POST DIRECT(0) = SEEN BY ADMIN
-    firebase.database().ref('posts/' + postItem).update({postStatus:false,postDirect:"0"});
-    $location.url('/admin');
-  }
+  firebase.database().ref('posts/' + postItem).update({postStatus:false,postDirect:"0"});
+  $state.reload();
+}
 })

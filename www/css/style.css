@@ -138,6 +138,10 @@ body{
 {
   top: 170px;
 }
+.has-bottom-space
+{
+  margin-bottom: 75px;
+}
 .textareaBody{
   width: 100%;
   resize: none;

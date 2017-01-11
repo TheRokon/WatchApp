@@ -1,16 +1,17 @@
 <ion-view style="" id="admin" title="Check List">
-	<ion-content class="has-header" padding="true" overflow-scroll:false  ng-init="loadAdminPost()">
+	<ion-content class="has-header " padding="true" overflow-scroll:false  ng-init="loadAdminPost()">
 <div ng-repeat="(name,postItemToGo) in Aposts">
 	<div  ng-if="!postItemToGo.postStatus && postItemToGo.postDirect=='1'">
 		<div class="list card">
 			<div class="item item-avatar">
 				<img src="http://tutorialsplane.com/runtest/ionic/img/profile.jpg">
 				<h2>{{user.username}}</h2>
-				<p>{{postItemToGo.postText}}</p>
 			</div>
-
-			<div class="item item-image">
-				<img src="img/nin-live.png">
+			<div class="item item-text-wrap">
+			<p>{{postItemToGo.postText}}</p>
+			</div>
+			<div class="item item-image" ng-if="postItemToGo.postImage">
+				<img src="{{postItemToGo.postImage}}">
 			</div>
 			<div class="item">
 				

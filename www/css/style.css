@@ -164,6 +164,11 @@ body{
   background-color: #EEE;
   width: 100%;
 }
+.cardButtons{
+background-color: #0000FF;
+width: 100% px !important;
+
+}
 .doCenter{
   text-align: center;
 }

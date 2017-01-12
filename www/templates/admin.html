@@ -1,7 +1,7 @@
 <ion-view style="" id="admin" title="Check List">
 	<ion-content class="has-header " padding="true" overflow-scroll:false  ng-init="loadAdminPost()">
 <div ng-repeat="(name,postItemToGo) in Aposts">
-	<div  ng-if="!postItemToGo.postStatus && postItemToGo.postDirect=='1'">
+	<div  ng-if="!postItemToGo.postStatus && !postItemToGo.postAdminChecked">
 		<div class="list card">
 			<div class="item item-avatar">
 				<img src="http://tutorialsplane.com/runtest/ionic/img/profile.jpg">

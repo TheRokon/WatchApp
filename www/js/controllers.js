@@ -468,9 +468,10 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
                     fireBaseData.refPost().push({    // set
                       postText: post.text,
                       postStatus: false,
+					  shared: false,
                       postImage: imageUrl,
                       postVideo: "",
-                      postDirect:"1",
+                      postAdminChecked:false,
                       postUserImg:usertemp.image,
                       postUser: uid
                     }).then(function (success) {
@@ -570,7 +571,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
 
 
 mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
-  $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils,$location) {
+  $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils,$location,$window) {
 
   var userid;
   var database = firebase.database();
@@ -619,12 +620,12 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
   }
   $scope.approve=function(postItem){
     console.log(postItem);
-    firebase.database().ref('posts/' + postItem).update({postStatus:true,postDirect:"0"});
-    $state.reload();
+    firebase.database().ref('posts/' + postItem).update({postStatus:true,postAdminChecked:true});
+  $window.location.reload();
   }
   $scope.reject=function(postItem){
   //POST DIRECT(0) = SEEN BY ADMIN
-  firebase.database().ref('posts/' + postItem).update({postStatus:false,postDirect:"0"});
-  $state.reload();
+  firebase.database().ref('posts/' + postItem).update({postStatus:false,postAdminChecked:true});
+  $window.location.reload();
 }
 })

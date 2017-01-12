@@ -2,7 +2,7 @@
 	<ion-content scroll="true" padding="true"  class=" manual-remove-top-padding has-header " ng-init="loadPost()">
 
 		<div ng-repeat="item in Aposts">
-			<div class="list card" ng-if="item.postStatus">
+			<div class="list card" >
 				<div class="item item-avatar">
 					<img ng-if="user.image" src="{{user.image}}">
 					<img ng-if="!user.image" src="img/defaultuser.png">
@@ -23,6 +23,22 @@
 						<div class="col"><i class="icon ion-social-twitter custom-icon-twitter"></i></div>
 					</div>
 				</div>
+				  <a ng-if="!item.postStatus && item.postAdminChecked" class="item item-icon-left assertive" href="#">
+					<i class="icon ion-heart-broken"></i>
+						Rejected - Why ?
+				  </a>
+				  <a ng-if="item.postStatus && item.postAdminChecked && !item.shared" class="item item-icon-left positive" href="#">
+					<i class="icon ion-heart"></i>
+						Accepted - Share Now
+				  </a>
+				  <a ng-if="!item.postAdminChecked" class="item item-icon-left energized" href="#">
+					<i class="icon ion-clock"></i>
+						Pending
+				  </a>
+				  <div ng-if="item.shared" class="item item-icon-left balanced">
+					<i class="icon ion-share"></i>
+						Shared !
+				  </div>
 			</div>
 		</div>
 	</ion-content>

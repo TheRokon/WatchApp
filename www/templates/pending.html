@@ -2,7 +2,7 @@
     <ion-content scroll="true" padding="true"  class=" manual-remove-top-padding has-header " ng-init="loadPost()">
     	
 		<div ng-repeat="item in Aposts">
-			<div class="list card" ng-if="item.postDirect=='1'">
+			<div class="list card" ng-if="!item.postAdminChecked">
 				<div class="item item-avatar">
 					<img ng-if="user.image" src="{{user.image}}">
 					<img ng-if="!user.image" src="img/defaultuser.png">

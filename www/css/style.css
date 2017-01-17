@@ -182,7 +182,16 @@ width: 100% px !important;
   color : #3b5998;
 }
 .custom-icon-instagram{
-  color : #125688;
+  color : #bc2a8d;
+}
+.custom-icon-notwitter{
+  color : #dedede;
+}
+.custom-icon-nofacebook{
+  color : #dedede;
+}
+.custom-icon-noinstagram{
+  color : #dedede;
 }
 .custom-icon-gmail{
   color : #dd4b39;

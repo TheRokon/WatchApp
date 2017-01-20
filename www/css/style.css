@@ -202,6 +202,12 @@ width: 100% px !important;
 .custom-icon-gmail{
   color : red;
 }
+.alignRight{
+	text-align:right !important;
+}
+.deleteIcon:before {
+    font-size: 12px !important;
+}
 .button-orange{
   background-color:#ffa500;
   color:#fff;

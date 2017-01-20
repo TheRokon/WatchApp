@@ -17,9 +17,9 @@
 				
 				<div class="row">
 					<div class="col col-50"><h3>Sharing for:</h3></div>
-					<div class="col"><i class="icon ion-social-facebook custom-icon-facebook"></i></div>
-					<div class="col"><i class="icon ion-social-twitter custom-icon-twitter"></i></div>
-					<div class="col"><i class="icon ion-social-instagram-outline custom-icon-instagram"></i></div>
+						<div class="col"><i ng-class="postItemToGo.facebook ? 'custom-icon-facebook' : 'custom-icon-nofacebook'" class="icon ion-social-facebook"></i></div>
+						<div class="col"><i ng-class="postItemToGo.twitter ? 'custom-icon-twitter' : 'custom-icon-notwitter'"  class="icon ion-social-twitter"></i></div>
+						<div class="col"><i ng-class="postItemToGo.instagram ? 'custom-icon-instagram' : 'custom-icon-noinstagram'"  class="icon ion-social-instagram-outline"></i></div>
 				</div>
 				<br>
 				<div class="list">

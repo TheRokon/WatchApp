@@ -7,9 +7,9 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
   //Check if user already logged in
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      userid=user.uid;
       $scope.user_info=user; //Saves data to user_info
       $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
+	  userid=user.uid;
     }else {
 
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
@@ -44,7 +44,8 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
     sharedUtils.showLoading();
     /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
     var database = firebase.database();
-    var VarPost = firebase.database().ref().child('posts');
+	console.log("IDDDDDDD: "+userid);
+    var VarPost = firebase.database().ref().child('posts').orderByChild('postUser').equalTo('4FFa6ZgIGyVqjYu9gb3ygKK4j4v1');
     VarPost.on('value', function(snapshot){
 
           //Finally you get the 'posts' node and send to scope
@@ -433,6 +434,10 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
     var uid ;
     var imageUrl=null;
     var usertemp=null;
+	var facebookShared=true;
+	var twitterShared=true;
+	var instaShared=true;
+	
     //Check if user already logged in
     firebase.auth().onAuthStateChanged(function(user) {
       if (user) {
@@ -473,7 +478,10 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
                       postVideo: "",
                       postAdminChecked:false,
                       postUserImg:usertemp.image,
-                      postUser: uid
+                      postUser: uid,
+					  twitter: twitterShared,
+					  facebook: facebookShared,
+					  instagram: instaShared
                     }).then(function (success) {
                       sharedUtils.hideLoading();
 
@@ -566,9 +574,54 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
         });
       });
       }
+	  $scope.facebookStyle = "custom-icon-facebook";
+	  $scope.twitterStyle = "custom-icon-twitter";
+	  $scope.instagramStyle = "custom-icon-instagram";
+	 
+	  $scope.changeClassF=function(){
+	  if($scope.facebookStyle==="custom-icon-facebook")
+	  {
+      $scope.facebookStyle = "custom-icon-nofacebook";
+	  facebookShared=false;
+	  }
+	  else
+	  {
+	  $scope.facebookStyle = "custom-icon-facebook";
+	  facebookShared=true;
+	  }
+	  }
+	  
+	  $scope.changeClassT=function(){
+	  if($scope.twitterStyle==="custom-icon-twitter")
+	  {
+      $scope.twitterStyle = "custom-icon-notwitter";
+	  twitterShared=false;
+	  }
+	  else
+	  {
+	  $scope.twitterStyle = "custom-icon-twitter";
+	  twitterShared=true;
+	  }
+	  }
+	  
+	  $scope.changeClassI=function(){
+	  if($scope.instagramStyle==="custom-icon-instagram")
+	  {
+      $scope.instagramStyle = "custom-icon-noinstagram";
+	  instaShared=false;
+	  }
+	  else
+	  {
+	  $scope.instagramStyle = "custom-icon-instagram";
+	  instaShared=true;
+	  }
+	  }
+	  
+	  $scope.goShared=function(){
+	  $state.go('tabsController.shared', {}, {location: "replace"});
+	  }
+
     })
-
-
 
 mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
   $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils,$location,$window) {

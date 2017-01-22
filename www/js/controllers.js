@@ -1,15 +1,12 @@
 var mod = angular.module('app.controllers', [])
 
-mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
-  $ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
-
-  var userid;
+mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,$ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
+							
   //Check if user already logged in
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
       $scope.user_info=user; //Saves data to user_info
       $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
-	  userid=user.uid;
     }else {
 
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
@@ -22,8 +19,25 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
       $state.go('login', {}, {location: "replace"});
 
     }
+  
   });
 
+  	$scope.loadPost = function() {
+
+	var user = firebase.auth().currentUser;
+     sharedUtils.showLoading();
+    /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
+    var database = firebase.database();
+    var VarPost = firebase.database().ref().child('posts').orderByChild('postUser').equalTo(user.uid);
+    VarPost.on('value', function(snapshot){
+
+          //Finally you get the 'posts' node and send to scope
+          $scope.Aposts = snapshot.val();
+
+        });
+    sharedUtils.hideLoading();
+};
+   
   // On Loggin in to menu page, the sideMenu drag state is set to true
   $ionicSideMenuDelegate.canDragContent(true);
   $rootScope.extras=true;
@@ -40,21 +54,7 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
     $state.go(stateurl, {}, {location: "replace"});
   }
 
-  $scope.loadPost = function() {
-    sharedUtils.showLoading();
-    /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
-    var database = firebase.database();
-	console.log("IDDDDDDD: "+userid);
-    var VarPost = firebase.database().ref().child('posts').orderByChild('postUser').equalTo('4FFa6ZgIGyVqjYu9gb3ygKK4j4v1');
-    VarPost.on('value', function(snapshot){
 
-          //Finally you get the 'posts' node and send to scope
-          $scope.Aposts = snapshot.val();
-
-        });
-    sharedUtils.hideLoading();
-    
-  }
 
   $scope.showProductInfo=function (id) {
 
@@ -72,6 +72,7 @@ function ($scope, $stateParams) {
 
 
 }])
+
 
 mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
   $ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
@@ -114,10 +115,11 @@ mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate
   }
 
   $scope.loadPost = function() {
+  var user = firebase.auth().currentUser;
     sharedUtils.showLoading();
     /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
     var database = firebase.database();
-    var VarPost = firebase.database().ref().child('posts');
+    var VarPost = firebase.database().ref().child('posts').orderByChild('postUser').equalTo(user.uid);
     VarPost.on('value', function(snapshot){
 
           //Finally you get the 'posts' node and send to scope
@@ -633,7 +635,7 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
     if (user) {
       userid=user.uid;
       $scope.user_info=user; //Saves data to user_info
-      $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
+      $scope.user=  firebas.auth().currentUser;
     }else {
 
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space

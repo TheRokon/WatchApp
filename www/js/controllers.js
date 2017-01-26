@@ -1,6 +1,6 @@
 var mod = angular.module('app.controllers', [])
 
-mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,$ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
+mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,$ionicHistory,$firebaseObject,sharedUtils) {
 							
   //Check if user already logged in
   firebase.auth().onAuthStateChanged(function(user) {
@@ -37,6 +37,33 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
         });
     sharedUtils.hideLoading();
 };
+
+$scope.showwhy=function(itemid){
+firebase.database().ref('/posts/' + itemid).once('value').then(function(snapshot){sharedUtils.showAlert(""+snapshot.val().postRejectReason);});
+};
+   
+     $scope.deleteItem=function(itemId){
+
+  firebase.database().ref('/posts/' + itemId).once('value').then(function(snapshot){
+		var imageFileName=snapshot.val().postImageName;
+		if(imageFileName!='')
+		{
+		deleteFile(imageFileName)
+		firebase.database().ref('/posts/' + itemId).remove();
+		}
+		else
+		firebase.database().ref('/posts/' + itemId).remove();
+		
+		$state.go('tabsController.shared', {}, {location: "replace"});
+  });
+  }
+    function deleteFile(fileName){
+		var storageRef = firebase.storage().ref();
+		var desertRef = storageRef.child('images/'+fileName);
+		desertRef.delete();
+  }
+   
+   
    
   // On Loggin in to menu page, the sideMenu drag state is set to true
   $ionicSideMenuDelegate.canDragContent(true);
@@ -53,16 +80,6 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
   $scope.go=function(stateurl){
     $state.go(stateurl, {}, {location: "replace"});
   }
-
-
-
-  $scope.showProductInfo=function (id) {
-
-  };
-  $scope.addToPost=function(item){
-    sharedpostService.add(item);
-  };
-
 })
 
 mod.controller('scheduleCtrl', ['$scope', '$stateParams', // The following is the constructor function for this page's controller. See https://docs.angularjs.org/guide/controller
@@ -75,7 +92,7 @@ function ($scope, $stateParams) {
 
 
 mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
-  $ionicHistory,$firebaseObject,sharedpostService,sharedUtils) {
+  $ionicHistory,$firebaseObject,sharedUtils) {
 
   var userid;
   //Check if user already logged in
@@ -132,9 +149,6 @@ mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate
 
   $scope.showProductInfo=function (id) {
 
-  };
-  $scope.addToPost=function(item){
-    sharedpostService.add(item);
   };
 
 })
@@ -314,7 +328,7 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 
       }])
 
-.controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$q,$ionicSideMenuDelegate,$firebaseObject,fireBaseData,$cordovaImagePicker,$window,$cordovaFile,$ionicPlatform,sharedpostService) {
+.controller('indexCtrl', function($scope,$rootScope,sharedUtils,$ionicHistory,$state,$q,$ionicSideMenuDelegate,$firebaseObject,fireBaseData,$cordovaImagePicker,$window,$cordovaFile,$ionicPlatform) {
  var uid ;
  var imageUrl=null;
     var usertemp=null;
@@ -431,10 +445,12 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
 
   })
 
-mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaImagePicker,$window,$cordovaFile,$ionicPlatform,$q,$ionicSideMenuDelegate,sharedpostService,$state,$firebaseObject,fireBaseData,$ionicHistory) {
+mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaImagePicker,$window,$cordovaFile,$ionicPlatform,$q,$ionicSideMenuDelegate,$state,$firebaseObject,fireBaseData,$ionicHistory) {
     $rootScope.extras = false; // For hiding the side bar and nav icon
     var uid ;
+	var adminName;
     var imageUrl=null;
+	var imageName="";
     var usertemp=null;
 	var facebookShared=true;
 	var twitterShared=true;
@@ -447,6 +463,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
         usertemp=user;
         $scope.user=  $firebaseObject(fireBaseData.refUser().child(user.uid));
         uid=user.uid;
+		firebase.database().ref('/users/' + uid).once('value').then(function(snapshot) {adminName = snapshot.val().adminname;});
       }else {
 
         $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
@@ -470,6 +487,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
           usertemp.image="";
         if(imageUrl==null)
           imageUrl="";
+
         if(post)
         {
                     fireBaseData.refPost().push({    // set
@@ -481,6 +499,9 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
                       postAdminChecked:false,
                       postUserImg:usertemp.image,
                       postUser: uid,
+					  postImageName:imageName,
+					  postRejectReason:"",
+					  postAdmin: adminName,
 					  twitter: twitterShared,
 					  facebook: facebookShared,
 					  instagram: instaShared
@@ -498,8 +519,6 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
                     sharedUtils.hideLoading();
                     sharedUtils.showAlert("Please write something");
                   }
-        /*sharedpostService.add(post);
-        */
 
       }else{
         sharedUtils.hideLoading();
@@ -524,6 +543,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
       .then(function (results) {
         console.log('Image URI: ' + results[0]);
         fileName = results[0].replace(/^.*[\\\/]/, '');
+		imageName=fileName;
           // modify the image path when on Android
           if ($ionicPlatform.is("android")) {
             path = cordova.file.cacheDirectory
@@ -626,16 +646,15 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
     })
 
 mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,
-  $ionicHistory,$firebaseArray,$firebaseObject,sharedpostService,sharedUtils,$location,$window) {
+  $ionicHistory,$firebaseArray,$firebaseObject,sharedUtils,$location,$window,$ionicPopup) {
 
-  var userid;
-  var database = firebase.database();
+  var reasonAdmin="";
   //Check if user already logged in
   firebase.auth().onAuthStateChanged(function(user) {
     if (user) {
-      userid=user.uid;
       $scope.user_info=user; //Saves data to user_info
-      $scope.user=  firebas.auth().currentUser;
+      $scope.user=  firebase.auth().currentUser;
+
     }else {
 
       $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
@@ -663,13 +682,21 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
 
   $scope.loadAdminPost = function() {
     sharedUtils.showLoading();
-    var VarPost = firebase.database().ref().child('posts');
+	
+	var user = firebase.auth().currentUser;
+     sharedUtils.showLoading();
+	
+	  	firebase.database().ref('/users/' + user.uid).once('value').then(
+		function(snapshot) 
+		{
+		 var VarPost = firebase.database().ref().child('posts').orderByChild('postAdmin').equalTo(snapshot.val().adminname);
     VarPost.on('value', function(snapshot){
 
           //Finally you get the 'posts' node and send to scope
           $scope.Aposts = snapshot.val();
 
         });
+		});
     sharedUtils.hideLoading();
     
   }
@@ -679,8 +706,30 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
   $window.location.reload();
   }
   $scope.reject=function(postItem){
-  //POST DIRECT(0) = SEEN BY ADMIN
-  firebase.database().ref('posts/' + postItem).update({postStatus:false,postAdminChecked:true});
-  $window.location.reload();
+  $scope.data = {}
+	$ionicPopup.show({
+    template: '<input type="text"  ng-model="data.reason">',
+    title: 'Enter a reason for reject',
+    subTitle: 'Please write a reason',
+	scope:$scope,
+    buttons: [
+      { text: 'Cancel' },
+      {
+        text: '<b>OK</b>',
+        type: 'button-positive',
+        onTap: function(e) {
+          if (!$scope.data.reason) {
+            e.preventDefault();
+          } else {
+            reasonAdmin = $scope.data.reason;
+			  //POST DIRECT(0) = SEEN BY ADMIN
+ firebase.database().ref('posts/' + postItem).update({postStatus:false,postAdminChecked:true,postRejectReason:reasonAdmin});
+ sharedUtils.showAlert("Rejected");
+  $state.go('admin', {}, {location: "replace"});
+          }
+        }
+      }
+    ]
+  });
 }
 })

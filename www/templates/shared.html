@@ -1,10 +1,10 @@
 <ion-view style="" id="shared" title="Posts">
 	<ion-content scroll="true" padding="true"  class=" manual-remove-top-padding has-header " ng-init="loadPost()">
 
-		<div ng-repeat="item in Aposts">
+		<div ng-repeat="(name,listItem) in Aposts">
 			<div class="list card" >
 			    <div class="item item-divider alignRight">
-					<i ng-click="deletePost()" class="deleteIcon icon assertive ion-close" ></i>
+					<i ng-click="deleteItem(name)" class="deleteIcon icon assertive ion-close" ></i>
 				</div>
 				<div class="item item-avatar">						
 					<img ng-if="user.image" src="{{user.image}}">
@@ -12,33 +12,33 @@
 					<h2 class="marginfiveTop">{{user.username}}</h2>
 				</div>
 			<div class="item item-text-wrap">
-			<p>{{item.postText}}</p>
+			<p>{{listItem.postText}}</p>
 			</div>
-				<div class="item item-image" ng-if="item.postImage">
-					<img src="{{item.postImage}}">
+				<div class="item item-image" ng-if="listItem.postImage">
+					<img src="{{listItem.postImage}}">
 				</div>
 				<div class="item">
 
 					<div class="row">
 						<div class="col col-50"><h3>Shared for:</h3></div>
-						<div class="col"><i ng-class="item.facebook ? 'custom-icon-facebook' : 'custom-icon-nofacebook'" class="icon ion-social-facebook"></i></div>
-						<div class="col"><i ng-class="item.twitter ? 'custom-icon-twitter' : 'custom-icon-notwitter'"  class="icon ion-social-twitter"></i></div>
-						<div class="col"><i ng-class="item.instagram ? 'custom-icon-instagram' : 'custom-icon-noinstagram'"  class="icon ion-social-instagram-outline"></i></div>
+						<div class="col"><i ng-class="listItem.facebook ? 'custom-icon-facebook' : 'custom-icon-nofacebook'" class="icon ion-social-facebook"></i></div>
+						<div class="col"><i ng-class="listItem.twitter ? 'custom-icon-twitter' : 'custom-icon-notwitter'"  class="icon ion-social-twitter"></i></div>
+						<div class="col"><i ng-class="listItem.instagram ? 'custom-icon-instagram' : 'custom-icon-noinstagram'"  class="icon ion-social-instagram-outline"></i></div>
 					</div>
 				</div>
-				  <a ng-if="!item.postStatus && item.postAdminChecked" class="item item-icon-left assertive" href="#">
+				  <a ng-if="!listItem.postStatus && listItem.postAdminChecked" class="item item-icon-left assertive" ng-click="showwhy(name)" >
 					<i class="icon ion-heart-broken"></i>
 						Rejected - Why ?
 				  </a>
-				  <a ng-if="item.postStatus && item.postAdminChecked && !item.shared" class="item item-icon-left positive" href="#">
+				  <a ng-if="listItem.postStatus && listItem.postAdminChecked && !listItem.shared" class="item item-icon-left positive">
 					<i class="icon ion-heart"></i>
 						Accepted - Share Now
 				  </a>
-				  <a ng-if="!item.postAdminChecked" class="item item-icon-left energized" href="#">
+				  <a ng-if="!listItem.postAdminChecked" class="item item-icon-left energized">
 					<i class="icon ion-clock"></i>
 						Pending
 				  </a>
-				  <div ng-if="item.shared" class="item item-icon-left balanced">
+				  <div ng-if="listItem.shared" class="item item-icon-left balanced">
 					<i class="icon ion-share"></i>
 						Shared !
 				  </div>

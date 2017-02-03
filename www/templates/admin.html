@@ -2,11 +2,12 @@
 	<ion-content class="has-header " padding="true" overflow-scroll:false  ng-init="loadAdminPost()">
 <div ng-repeat="(name,postItemToGo) in Aposts">
 	<div  ng-if="!postItemToGo.postStatus && !postItemToGo.postAdminChecked">
-		<div class="list card">
-			<div class="item item-avatar">
-				<img src="http://tutorialsplane.com/runtest/ionic/img/profile.jpg">
-				<h2>{{user.username}}</h2>
-			</div>
+		<div class="list card" ng-init="getUserName(name)">
+				<div class="item item-avatar">						
+					<img ng-if="user.image" src="{{user.image}}">
+					<img ng-if="!user.image" src="img/defaultuser.png">
+					<h2 class="marginfiveTop">{{unUserName}}</h2>
+				</div>
 			<div class="item item-text-wrap">
 			<p>{{postItemToGo.postText}}</p>
 			</div>

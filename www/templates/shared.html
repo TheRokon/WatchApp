@@ -30,7 +30,7 @@
 					<i class="icon ion-heart-broken"></i>
 						Rejected - Why ?
 				  </a>
-				  <a ng-if="listItem.postStatus && listItem.postAdminChecked && !listItem.shared" class="item item-icon-left positive">
+				  <a ng-if="listItem.postStatus && listItem.postAdminChecked && !listItem.shared" ng-click="shareTwitter()" class="item item-icon-left positive">
 					<i class="icon ion-heart"></i>
 						Accepted - Share Now
 				  </a>

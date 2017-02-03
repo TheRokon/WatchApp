@@ -1,6 +1,6 @@
 var mod = angular.module('app.controllers', [])
 
-mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,$ionicHistory,$firebaseObject,sharedUtils) {
+mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,fireBaseData,$state,$window,$ionicHistory,$firebaseObject,sharedUtils,$ionicPopup) {
 							
   //Check if user already logged in
   firebase.auth().onAuthStateChanged(function(user) {
@@ -25,10 +25,22 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
   	$scope.loadPost = function() {
 
 	var user = firebase.auth().currentUser;
+	if(!user){
+
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
+
+      $ionicHistory.nextViewOptions({
+        historyRoot: true
+      });
+      $rootScope.extras = false;
+      sharedUtils.hideLoading();
+      $state.go('login', {}, {location: "replace"});
+    }
+	var uid = user.uid;
      sharedUtils.showLoading();
     /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
     var database = firebase.database();
-    var VarPost = firebase.database().ref().child('posts').orderByChild('postUser').equalTo(user.uid);
+    var VarPost = firebase.database().ref().child('posts').orderByChild('postUser').equalTo(uid);
     VarPost.on('value', function(snapshot){
 
           //Finally you get the 'posts' node and send to scope
@@ -38,13 +50,23 @@ mod.controller('sharedCtrl',  function($scope,$rootScope,$ionicSideMenuDelegate,
     sharedUtils.hideLoading();
 };
 
+$scope.shareTwitter =function()
+{
+	window.plugins.socialsharing.shareViaTwitter('Message and link via Twitter', null /* img */, 'http://www.x-services.nl');
+}
 $scope.showwhy=function(itemid){
 firebase.database().ref('/posts/' + itemid).once('value').then(function(snapshot){sharedUtils.showAlert(""+snapshot.val().postRejectReason);});
 };
    
      $scope.deleteItem=function(itemId){
-
-  firebase.database().ref('/posts/' + itemId).once('value').then(function(snapshot){
+	 
+   $ionicPopup.confirm({
+     title: 'Delete Post',
+     template: 'Are you sure you want to delete this post ?'
+   }).then(function(res) {
+    sharedUtils.showLoading();
+     if(res) {
+         firebase.database().ref('/posts/' + itemId).once('value').then(function(snapshot){
 		var imageFileName=snapshot.val().postImageName;
 		if(imageFileName!='')
 		{
@@ -54,8 +76,14 @@ firebase.database().ref('/posts/' + itemid).once('value').then(function(snapshot
 		else
 		firebase.database().ref('/posts/' + itemId).remove();
 		
+		$scope.$apply();
 		$state.go('tabsController.shared', {}, {location: "replace"});
   });
+     }
+			  sharedUtils.hideLoading();
+   });
+
+
   }
     function deleteFile(fileName){
 		var storageRef = firebase.storage().ref();
@@ -76,7 +104,13 @@ firebase.database().ref('/posts/' + itemid).once('value').then(function(snapshot
       $ionicHistory.clearCache();
     }
   });
-
+function wait(ms){
+   var start = new Date().getTime();
+   var end = start;
+   while(end < start + ms) {
+     end = new Date().getTime();
+  }
+}
   $scope.go=function(stateurl){
     $state.go(stateurl, {}, {location: "replace"});
   }
@@ -133,6 +167,18 @@ mod.controller('pendingCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate
 
   $scope.loadPost = function() {
   var user = firebase.auth().currentUser;
+  	if(!user){
+
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
+
+      $ionicHistory.nextViewOptions({
+        historyRoot: true
+      });
+      $rootScope.extras = false;
+      sharedUtils.hideLoading();
+      $state.go('login', {}, {location: "replace"});
+
+    }
     sharedUtils.showLoading();
     /*$scope.posts=$firebaseArray(fireBaseData.refpost());*/
     var database = firebase.database();
@@ -351,6 +397,7 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
     });
     $scope.setProfileImage = function() {
 
+	sharedUtils.showLoading();
       var options = {
         quality: 50,
         destinationType: Camera.DestinationType.FILE_URI,
@@ -364,7 +411,8 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
       $cordovaImagePicker.getPictures(options)
       .then(function (results) {
         console.log('Image URI: ' + results[0]);
-        fileName = uid;
+        fileName = results[0].replace(/^.*[\\\/]/, '');
+		imageName=fileName;
           // modify the image path when on Android
           if ($ionicPlatform.is("android")) {
             path = cordova.file.cacheDirectory
@@ -377,17 +425,22 @@ function ($scope, $stateParams,$ionicSideMenuDelegate) {
         }).then(function (success) {
           // success - get blob data
           var imageBlob = new Blob([success], { type: "image/jpeg" });
-          console.log('Image BLOBBBBB: ' + imageBlob);
+
           // missed some params... NOW it is a promise!!
           return saveToFirebase(imageBlob, fileName);
         }).then(function (_response) {
-         sharedUtils.hideLoading();
-         sharedUtils.showAlert("Profile Image Changed");
+		  if(imageUrl==null)
+          imageUrl="";
+		  firebase.database().ref('users/' + uid).update({image:imageUrl});
+		  sharedUtils.hideLoading();
+         sharedUtils.showAlert("Profile image changed");
        }, function (error) {
           // error
-          console.log(error)
+		  	sharedUtils.hideLoading();
+          console.log(error);
         });
       }
+	
       function saveToFirebase(_imageBlob, _filename) {
 
         return $q(function (resolve, reject) {
@@ -528,7 +581,7 @@ mod.controller('createPostCtrl',function($scope,$rootScope,sharedUtils,$cordovaI
     }
 
     $scope.getPhoto = function() {
-
+sharedUtils.showLoading();
       var options = {
         quality: 50,
         destinationType: Camera.DestinationType.FILE_URI,
@@ -684,7 +737,18 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
     sharedUtils.showLoading();
 	
 	var user = firebase.auth().currentUser;
-     sharedUtils.showLoading();
+	if(!user){
+
+      $ionicSideMenuDelegate.canDragContent(false);  // To remove the sidemenu white space
+
+      $ionicHistory.nextViewOptions({
+        historyRoot: true
+      });
+      $rootScope.extras = false;
+      sharedUtils.hideLoading();
+      $state.go('login', {}, {location: "replace"});
+
+    }
 	
 	  	firebase.database().ref('/users/' + user.uid).once('value').then(
 		function(snapshot) 
@@ -700,10 +764,25 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
     sharedUtils.hideLoading();
     
   }
+  $scope.getUserName= function(uid)
+  {
+
+	firebase.database().ref('/posts/' + uid).once('value').then(
+		function(snapshot) 
+		{
+		var unUserId=snapshot.val().postUser;
+		firebase.database().ref('/users/' + unUserId).once('value').then(
+		function(snapshot) 
+		{
+			$scope.unUserName=snapshot.val().username;
+		});
+		});
+  }
   $scope.approve=function(postItem){
     console.log(postItem);
     firebase.database().ref('posts/' + postItem).update({postStatus:true,postAdminChecked:true});
-  $window.location.reload();
+	sharedUtils.showAlert("Accepted");
+	 $scope.$apply();
   }
   $scope.reject=function(postItem){
   $scope.data = {}
@@ -724,12 +803,14 @@ mod.controller('adminCtrl', function ($scope,$rootScope,$ionicSideMenuDelegate,f
             reasonAdmin = $scope.data.reason;
 			  //POST DIRECT(0) = SEEN BY ADMIN
  firebase.database().ref('posts/' + postItem).update({postStatus:false,postAdminChecked:true,postRejectReason:reasonAdmin});
- sharedUtils.showAlert("Rejected");
-  $state.go('admin', {}, {location: "replace"});
+  sharedUtils.showAlert("Rejected");
+
+  //$state.go('admin', {}, {location: "replace"});
           }
         }
       }
     ]
   });
+
 }
 })
